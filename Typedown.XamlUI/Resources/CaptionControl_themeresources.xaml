@@ -1,0 +1,117 @@
+﻿<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Typedown.XamlUI"
+    xmlns:converters="using:Typedown.XamlUI.Converters">
+
+    <Style TargetType="local:CaptionControlGroup" BasedOn="{StaticResource DefaultCaptionControlGroupStyle}"/>
+
+    <x:Double x:Key="CaptionControlHeight">32</x:Double>
+
+    <Style x:Key="DefaultCaptionControlGroupStyle" TargetType="local:CaptionControlGroup">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:CaptionControlGroup">
+                    <Grid Height="{ThemeResource CaptionControlHeight}">
+
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="WindowStates">
+
+                                <VisualState x:Name="Active">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonForegroundBrush.Color" Value="{ThemeResource TextFillColorPrimary}"/>
+                                        <Setter Target="AccentButtonForegroundBrush.Color" Value="{ThemeResource TextFillColorPrimary}"/>
+                                        <Setter Target="ButtonForegroundDisabledBrush.Opacity" Value="1"/>
+                                        <Setter Target="AccentButtonForegroundDisabledBrush.Opacity" Value="1"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+
+                                <VisualState x:Name="Deactive">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonForegroundBrush.Color" Value="{ThemeResource TextFillColorDisabled}"/>
+                                        <Setter Target="AccentButtonForegroundBrush.Color" Value="{ThemeResource TextFillColorDisabled}"/>
+                                        <Setter Target="ButtonForegroundDisabledBrush.Opacity" Value="0.5"/>
+                                        <Setter Target="AccentButtonForegroundDisabledBrush.Opacity" Value="0.5"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="46"/>
+                            <ColumnDefinition Width="46"/>
+                            <ColumnDefinition Width="46"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid.Resources>
+                            <ResourceDictionary>
+
+                                <SolidColorBrush x:Key="ButtonBackground" Color="Transparent" />
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource SubtleFillColorSecondary}"/>
+                                <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="{ThemeResource SubtleFillColorTertiary}"/>
+                                <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="Transparent"/>
+                                <SolidColorBrush x:Key="ButtonForeground" x:Name="ButtonForegroundBrush" Color="{ThemeResource TextFillColorPrimary}" />
+                                <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="{ThemeResource TextFillColorPrimary}"/>
+                                <SolidColorBrush x:Key="ButtonForegroundPressed" Color="{ThemeResource TextFillColorSecondary}"/>
+                                <SolidColorBrush x:Key="ButtonForegroundDisabled" x:Name="ButtonForegroundDisabledBrush" Color="{ThemeResource TextFillColorDisabled}" />
+
+                                <SolidColorBrush x:Key="AccentButtonBackground" Color="Transparent"/>
+                                <SolidColorBrush x:Key="AccentButtonBackgroundPointerOver" Color="#C42B1C"/>
+                                <SolidColorBrush x:Key="AccentButtonBackgroundPressed" Color="#C42B1C" Opacity="0.9" />
+                                <SolidColorBrush x:Key="AccentButtonBackgroundDisabled" Color="Transparent" />
+                                <SolidColorBrush x:Key="AccentButtonForeground" x:Name="AccentButtonForegroundBrush" Color="{ThemeResource TextFillColorPrimary}" />
+                                <SolidColorBrush x:Key="AccentButtonForegroundPointerOver" Color="#FFFFFF" />
+                                <SolidColorBrush x:Key="AccentButtonForegroundPressed" Color="#FFFFFF" Opacity="0.7" />
+                                <SolidColorBrush x:Key="AccentButtonForegroundDisabled" x:Name="AccentButtonForegroundDisabledBrush" Color="{ThemeResource TextFillColorDisabled}" />
+
+                                <converters:BoolToObjectConverter 
+                                    x:Key="MaximizeOrRestoreConverter" 
+                                    TrueValue="&#xe923;" 
+                                    FalseValue="&#xe922;"/>
+
+                                <Style x:Key="CaptionButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="CornerRadius" Value="0"/>
+                                    <Setter Property="VerticalAlignment" Value="Stretch"/>
+                                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                </Style>
+
+                                <Style x:Key="CaptionCloseButtonStyle" TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="CornerRadius" Value="0"/>
+                                    <Setter Property="VerticalAlignment" Value="Stretch"/>
+                                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                </Style>
+
+                            </ResourceDictionary>
+                        </Grid.Resources>
+
+                        <Button x:Name="MinButton" 
+                                Grid.Column="0" 
+                                IsTabStop="False"
+                                Style="{ThemeResource CaptionButtonStyle}">
+                            <FontIcon FontSize="10" Glyph="&#xe921;"/>
+                        </Button>
+
+                        <Button x:Name="MaxButton" 
+                                Grid.Column="1" 
+                                IsTabStop="False"
+                                Style="{ThemeResource CaptionButtonStyle}">
+                            <FontIcon FontSize="10" Glyph="{Binding IsMaximized, RelativeSource={RelativeSource Mode=TemplatedParent}, Converter={StaticResource MaximizeOrRestoreConverter}}"/>
+                        </Button>
+
+                        <Button x:Name="CloseButton" 
+                                Grid.Column="2" 
+                                IsTabStop="False"
+                                Style="{ThemeResource CaptionCloseButtonStyle}">
+                            <FontIcon FontSize="10" Glyph="&#xe8bb;"/>
+                        </Button>
+
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

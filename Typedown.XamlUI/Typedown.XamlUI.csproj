@@ -1,0 +1,128 @@
+﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
+
+	<PropertyGroup>
+		<TargetFramework>uap10.0</TargetFramework>
+		<TargetPlatformVersion>10.0.22000.0</TargetPlatformVersion>
+		<TargetPlatformMinVersion>10.0.18362.0</TargetPlatformMinVersion>
+		<RootNamespace>Typedown.XamlUI</RootNamespace>
+		<LangVersion>latest</LangVersion>
+		<Version>1.0.0</Version>
+		<Platforms>AnyCPU</Platforms>
+		<Authors>ZZF</Authors>
+		<RepositoryUrl>https://github.com/byxiaozhi/Typedown.XamlUI</RepositoryUrl>
+		<PackageDescription>A minimal library for building WinUI style application</PackageDescription>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Update="CaptionControlGroup.Helper.cs">
+			<DependentUpon>CaptionControlGroup.cs</DependentUpon>
+		</Compile>
+		<Compile Update="XamlWindow.Methods.cs">
+			<DependentUpon>XamlWindow.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Window.Enums.cs">
+			<DependentUpon>Window.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Window.Events.cs">
+			<DependentUpon>Window.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Window.Methods.cs">
+			<DependentUpon>Window.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Window.Properties.cs">
+			<DependentUpon>Window.cs</DependentUpon>
+		</Compile>
+		<Compile Update="XamlApplication.Events.cs">
+			<DependentUpon>XamlApplication.cs</DependentUpon>
+		</Compile>
+		<Compile Update="XamlApplication.Properties.cs">
+			<DependentUpon>XamlApplication.cs</DependentUpon>
+		</Compile>
+		<Compile Update="XamlWindow.Enums.cs">
+			<DependentUpon>XamlWindow.cs</DependentUpon>
+		</Compile>
+		<Compile Update="XamlWindow.Events.cs">
+			<DependentUpon>XamlWindow.cs</DependentUpon>
+		</Compile>
+		<Compile Update="XamlWindow.Patchs.cs">
+			<DependentUpon>XamlWindow.cs</DependentUpon>
+		</Compile>
+		<Compile Update="XamlWindow.Properties.cs">
+			<DependentUpon>XamlWindow.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Include="Resources\CaptionControl_themeresources.xaml">
+		  <SubType>Designer</SubType>
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Resources\ContentDialog_themeresources.xaml">
+		  <SubType>Designer</SubType>
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Resources\ComboBox_themeresources.xaml">
+		  <SubType>Designer</SubType>
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Include="Resources\RootLayout_themeresources.xaml">
+			<SubType>Designer</SubType>
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.164-beta">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Win2D.uwp" Version="1.26.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="Microsoft.UI.Xaml">
+			<HintPath>lib\Microsoft.UI.Xaml.winmd</HintPath>
+		</Reference>
+		<Reference Include="Windows.UI.Xaml.Hosting.HostingContract">
+			<HintPath>ref\Windows.UI.Xaml.Hosting.HostingContract.winmd</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="buildTransitive\**\*">
+			<Pack>true</Pack>
+			<PackagePath>buildTransitive</PackagePath>
+		</None>
+		<None Include="lib\**\*">
+			<Pack>true</Pack>
+			<PackagePath>lib\netstandard2.0</PackagePath>
+		</None>
+		<None Include="lib\**\*">
+			<Pack>true</Pack>
+			<PackagePath>lib\uap10.0.18362</PackagePath>
+		</None>
+		<None Include="$(OutputPath)\$(AssemblyName).dll;$(OutputPath)\$(AssemblyName).pri">
+			<Pack>true</Pack>
+			<PackagePath>lib\netstandard2.0</PackagePath>
+		</None>
+		<None Include="$(OutputPath)\$(AssemblyName)\$(AssemblyName).xr.xml">
+			<Pack>true</Pack>
+			<PackagePath>lib\uap10.0.18362\$(AssemblyName)</PackagePath>
+		</None>
+		<None Include="runtimes\**\*">
+			<Pack>true</Pack>
+			<PackagePath>runtimes</PackagePath>
+		</None>
+		<None Include="tools\**\*">
+			<Pack>true</Pack>
+			<PackagePath>tools</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Resources\CaptionControl_themeresources.xaml" />
+	  <None Remove="Resources\ComboBox_themeresources.xaml" />
+	  <None Remove="Resources\ContentDialog_themeresources.xaml" />
+	</ItemGroup>
+
+</Project>

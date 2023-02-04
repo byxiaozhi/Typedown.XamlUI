@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resources targetOsVersion="10.0.0" majorVersion="1">
+	<index root="\" startIndexAt="\">
+		<indexer-config type="folder" foldernameAsQualifier="true" filenameAsQualifier="true" qualifierDelimiter="."/>
+		<indexer-config type="resw" convertDotsToSlashes="true" initialPath=""/>
+		<indexer-config type="resjson" initialPath=""/>
+		<indexer-config type="PRI"/>
+	</index>
+</resources>

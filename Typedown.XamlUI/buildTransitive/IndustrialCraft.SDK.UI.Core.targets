@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup Condition="'$(Platform)' == 'x86'">
+		<RuntimeIdentifier Condition="$(RuntimeIdentifier)==''">win10-x86</RuntimeIdentifier>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Platform)' == 'x64'">
+		<RuntimeIdentifier Condition="$(RuntimeIdentifier)==''">win10-x64</RuntimeIdentifier>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Platform)' == 'ARM'">
+		<RuntimeIdentifier Condition="$(RuntimeIdentifier)==''">win10-arm</RuntimeIdentifier>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Platform)' == 'ARM64'">
+		<RuntimeIdentifier Condition="$(RuntimeIdentifier)==''">win10-arm64</RuntimeIdentifier>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Platform)' != 'x86' and '$(Platform)' != 'x64' and '$(Platform)' != 'ARM' and '$(Platform)' != 'ARM64'">
+		<RuntimeIdentifier Condition="$(RuntimeIdentifier)==''">win10-x86</RuntimeIdentifier>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.VCRTForwarders.140" Version="1.0.7" Condition="$(OutputType.Contains('Exe'))"/>
+	</ItemGroup>
+
+	<PropertyGroup>
+		<ManifestTool Condition="!Exists('$(ManifestTool)')">$(MSBuildProgramFiles32)\Windows Kits\10\bin\10.0.22000.0\x86\mt.exe</ManifestTool>
+		<ManifestTool Condition="!Exists('$(ManifestTool)')">$(MSBuildProgramFiles32)\Windows Kits\10\bin\10.0.19041.0\x86\mt.exe</ManifestTool>
+		<ManifestTool Condition="!Exists('$(ManifestTool)')">$(MSBuildProgramFiles32)\Windows Kits\10\bin\10.0.18362.0\x86\mt.exe</ManifestTool>
+		<MakePri Condition="!Exists('$(MakePri)')">$(MSBuildProgramFiles32)\Windows Kits\10\bin\10.0.22000.0\x86\makepri.exe</MakePri>
+		<MakePri Condition="!Exists('$(MakePri)')">$(MSBuildProgramFiles32)\Windows Kits\10\bin\10.0.19041.0\x86\makepri.exe</MakePri>
+		<MakePri Condition="!Exists('$(MakePri)')">$(MSBuildProgramFiles32)\Windows Kits\10\bin\10.0.18362.0\x86\makepri.exe</MakePri>
+	</PropertyGroup>
+
+	<Target 
+		Name="MergeApplicationManifest" 
+		AfterTargets="ResolveReferences"
+		Condition="$(OutputType.Contains('Exe'))">
+		<Exec Condition="Exists('$(ApplicationManifest)')" Command="&quot;$(ManifestTool)&quot; -nologo -manifest &quot;$(MSBuildThisFileDirectory)\AppManifest.xml&quot; &quot;$(MSBuildProjectDirectory)\$(ApplicationManifest)&quot; -out:&quot;$(IntermediateOutputPath)\$(AssemblyName).MergedAppManifest.xml&quot;" WorkingDirectory="$(MSBuildProjectDirectory)" StandardOutputImportance="low" />
+		<CreateProperty Condition="Exists('$(ApplicationManifest)')" Value="$(IntermediateOutputPath)\$(AssemblyName).MergedAppManifest.xml">
+			<Output TaskParameter="Value" PropertyName="ApplicationManifest" />
+		</CreateProperty>
+		<CreateProperty Condition="!Exists('$(ApplicationManifest)')" Value="$(MSBuildThisFileDirectory)\AppManifest.xml">
+			<Output TaskParameter="Value" PropertyName="ApplicationManifest" />
+		</CreateProperty>
+	</Target>
+
+	<Target 
+		Name="ResolveResources"
+		Inputs="@(ReferencePath->'%(RootDir)%(Directory)%(Filename).pri')"
+		Outputs="$(IntermediateOutputPath)\ReferencedResources\**\*">
+		<ItemGroup>
+			<ReferencedResources Include="@(ReferencePath->'%(RootDir)%(Directory)%(Filename).pri')" />
+		</ItemGroup>
+		<RemoveDir Directories="$(IntermediateOutputPath)\ReferencedResources"/>
+		<Copy SourceFiles="@(ReferencedResources)" Condition="Exists('%(FullPath)')" DestinationFolder="$(IntermediateOutputPath)\ReferencedResources"/>
+	</Target>
+
+	<Target 
+		Name="MakeResources" 
+		AfterTargets="ResolveReferences" 
+		DependsOnTargets="ResolveResources" 
+		Inputs="$(IntermediateOutputPath)\ReferencedResources\**\*"
+		Outputs="$(IntermediateOutputPath)resources.pri"
+		Condition="$(OutputType.Contains('Exe'))">
+		<Exec Command="&quot;$(MakePri)&quot; new /cf &quot;$(MSBuildThisFileDirectory)\priconfig.xml&quot; /pr &quot;$(IntermediateOutputPath)\ReferencedResources&quot; /o /of &quot;$(IntermediateOutputPath)resources.pri&quot;" WorkingDirectory="$(MSBuildProjectDirectory)" StandardOutputImportance="low" />
+		<ItemGroup>
+			<Content Include="$(IntermediateOutputPath)resources.pri" CopyToOutputDirectory="PreserveNewest">
+				<Link>resources.pri</Link>
+			</Content>
+		</ItemGroup>
+	</Target>
+
+</Project>

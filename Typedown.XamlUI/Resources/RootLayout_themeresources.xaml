@@ -1,0 +1,12 @@
+﻿<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:local="using:Typedown.XamlUI"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style TargetType="local:RootLayout" BasedOn="{StaticResource DefaultRootLayoutStyle}"/>
+
+    <Style x:Key="DefaultRootLayoutStyle" TargetType="local:RootLayout">
+        <Setter Property="Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
+    </Style>
+    
+</ResourceDictionary>
