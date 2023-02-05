@@ -31,8 +31,6 @@ namespace Typedown.XamlUI
 
         private Exception _exception;
 
-        private const uint WM_NEXTFRAME = PInvoke.WM_USER + 1;
-
         internal Dispatcher()
         {
             _synchronizationContext = new DispatcherSynchronizationContext(this);
@@ -47,7 +45,7 @@ namespace Typedown.XamlUI
             _threadId = threadId;
             try
             {
-                PInvoke.PostThreadMessage(_threadId, WM_NEXTFRAME, 0, 0);
+                PInvoke.PostThreadMessage(_threadId, 0, 0, 0);
                 MessageLoop();
             }
             finally
@@ -79,23 +77,12 @@ namespace Typedown.XamlUI
 
         private unsafe void MessageProcess(MSG* msg)
         {
-            switch (msg->message)
+            PInvoke.TranslateMessage(msg);
+            PInvoke.DispatchMessage(msg);
+            while (_taskQueue.TryTake(out var action))
             {
-                case WM_NEXTFRAME:
-                    {
-                        while (_taskQueue.TryTake(out var action))
-                        {
-                            SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
-                            action();
-                        }
-                        break;
-                    }
-                default:
-                    {
-                        PInvoke.TranslateMessage(msg);
-                        PInvoke.DispatchMessage(msg);
-                        break;
-                    }
+                SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
+                action();
             }
         }
 
@@ -104,7 +91,7 @@ namespace Typedown.XamlUI
             _taskQueue.Add(action);
             if (_threadId != 0)
             {
-                PInvoke.PostThreadMessage(_threadId, WM_NEXTFRAME, 0, 0);
+                PInvoke.PostThreadMessage(_threadId, 0, 0, 0);
             }
         }
 
