@@ -174,7 +174,7 @@ namespace Typedown.XamlUI
             _propertiesUpdating = true;
             switch (msg)
             {
-                case PInvoke.WM_ACTIVATEAPP:
+                case PInvoke.WM_NCACTIVATE:
                     {
                         IsActive = wParam != 0;
                         IsActiveChanged?.Invoke(this, new(IsActive));
