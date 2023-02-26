@@ -289,13 +289,15 @@ namespace Typedown.XamlUI
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            XamlApplication.Current.RequestedThemeChanged += OnApplicationRequestedThemeChanged;
+            if (XamlApplication.Current is not null)
+                XamlApplication.Current.RequestedThemeChanged += OnApplicationRequestedThemeChanged;
             Loaded?.Invoke(this, EventArgs.Empty);
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
-            XamlApplication.Current.RequestedThemeChanged -= OnApplicationRequestedThemeChanged;
+            if (XamlApplication.Current is not null)
+                XamlApplication.Current.RequestedThemeChanged -= OnApplicationRequestedThemeChanged;
             Unloaded?.Invoke(this, EventArgs.Empty);
         }
 
