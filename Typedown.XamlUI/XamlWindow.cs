@@ -35,7 +35,6 @@ namespace Typedown.XamlUI
             lock (_instances)
                 _instances.Add(_ref);
             InitializeBinding();
-            _uiSettings.ColorValuesChanged += OnColorValuesChanged;
             _rootLayout.Loaded += OnLoaded;
             _rootLayout.Unloaded += OnUnloaded;
             Closed += OnClosed;
@@ -84,6 +83,7 @@ namespace Typedown.XamlUI
 
             _xamlSource = new() { Content = _rootLayout };
             _xamlSource.TakeFocusRequested += OnXamlSourceTakeFocusRequested;
+            _uiSettings.ColorValuesChanged += OnColorValuesChanged;
             var xamlSourceNative = (_xamlSource as IDesktopWindowXamlSourceNative);
             xamlSourceNative.AttachToWindow(Handle);
             XamlSourceHandle = xamlSourceNative.WindowHandle;
@@ -322,6 +322,7 @@ namespace Typedown.XamlUI
             _xamlSource?.Dispose();
             _xamlSource = null;
             XamlSourceHandle = IntPtr.Zero;
+            _uiSettings.ColorValuesChanged -= OnColorValuesChanged;
         }
 
         public override void Dispose()
@@ -329,6 +330,7 @@ namespace Typedown.XamlUI
             _xamlSource?.Dispose();
             _xamlSource = null;
             XamlSourceHandle = IntPtr.Zero;
+            _uiSettings.ColorValuesChanged -= OnColorValuesChanged;
             _isDisposed = true;
             base.Dispose();
         }
