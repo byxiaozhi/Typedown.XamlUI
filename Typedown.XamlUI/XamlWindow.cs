@@ -34,9 +34,6 @@ namespace Typedown.XamlUI
             _ref = new(this);
             lock (_instances)
                 _instances.Add(_ref);
-            InitializeBinding();
-            _rootLayout.Loaded += OnLoaded;
-            _rootLayout.Unloaded += OnUnloaded;
             Closed += OnClosed;
         }
 
@@ -80,7 +77,20 @@ namespace Typedown.XamlUI
             }
 
             base.InitializeWindow(style, exStyle, hWndParent);
+            InitDesktopXamlSource();
 
+            if (Topmost) SetTopmost(true);
+            if (!Frame) UpdateFrame();
+            UpdateTheme();
+        }
+
+        private void InitDesktopXamlSource()
+        {
+            if (_xamlSource != null)
+                return;
+            _rootLayout.Loaded += OnLoaded;
+            _rootLayout.Unloaded += OnUnloaded;
+            InitializeRootLayoutBinding();
             _xamlSource = new() { Content = _rootLayout };
             _xamlSource.TakeFocusRequested += OnXamlSourceTakeFocusRequested;
             _uiSettings.ColorValuesChanged += OnColorValuesChanged;
@@ -88,10 +98,19 @@ namespace Typedown.XamlUI
             xamlSourceNative.AttachToWindow(Handle);
             XamlSourceHandle = xamlSourceNative.WindowHandle;
             CoreWindowHelper.DetachCoreWindow();
+        }
 
-            if (Topmost) SetTopmost(true);
-            if (!Frame) UpdateFrame();
-            UpdateTheme();
+        private void DisposeXamlSource()
+        {
+            if (_xamlSource == null)
+                return;
+            _xamlSource.Dispose();
+            _xamlSource = null;
+            XamlSourceHandle = IntPtr.Zero;
+            _uiSettings.ColorValuesChanged -= OnColorValuesChanged;
+            _rootLayout.Loaded -= OnLoaded;
+            _rootLayout.Unloaded -= OnUnloaded;
+            ClearRootLayoutBinding();
         }
 
         private static Thickness GetFrameBorderThickness(uint dpi)
@@ -319,18 +338,12 @@ namespace Typedown.XamlUI
 
         private void OnClosed(object sender, ClosedEventArgs e)
         {
-            _xamlSource?.Dispose();
-            _xamlSource = null;
-            XamlSourceHandle = IntPtr.Zero;
-            _uiSettings.ColorValuesChanged -= OnColorValuesChanged;
+            DisposeXamlSource();
         }
 
         public override void Dispose()
         {
-            _xamlSource?.Dispose();
-            _xamlSource = null;
-            XamlSourceHandle = IntPtr.Zero;
-            _uiSettings.ColorValuesChanged -= OnColorValuesChanged;
+            DisposeXamlSource();
             _isDisposed = true;
             base.Dispose();
         }

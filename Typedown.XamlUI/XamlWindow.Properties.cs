@@ -157,7 +157,7 @@ namespace Typedown.XamlUI
             }
         }
 
-        private void InitializeBinding()
+        private void InitializeRootLayoutBinding()
         {
             _rootLayout.SetBinding(
                 FrameworkElement.RequestedThemeProperty,
@@ -167,6 +167,11 @@ namespace Typedown.XamlUI
                     Path = new(nameof(RequestedThemeProperty)),
                     Mode = BindingMode.TwoWay
                 });
+        }
+
+        private void ClearRootLayoutBinding()
+        {
+            _rootLayout.ClearValue(FrameworkElement.RequestedThemeProperty);
         }
 
         private void UpdateDependencyProperty(uint msg, nuint wParam, nint lParam)
