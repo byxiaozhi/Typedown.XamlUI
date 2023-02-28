@@ -16,7 +16,21 @@ namespace Typedown.XamlUI
         public RootLayout()
         {
             Name = nameof(RootLayout);
-            _contentPresenter.SizeChanged += OnContentSizeChanged;
+            Loaded += OnLoaded;
+            Unloaded += OnUnloaded;
+        }
+
+        private static void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            var target = sender as RootLayout;
+            target._contentPresenter.SizeChanged += target.OnContentSizeChanged;
+            target.OnContentSizeChanged(null, null);
+        }
+
+        private static void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            var target = sender as RootLayout;
+            target._contentPresenter.SizeChanged -= target.OnContentSizeChanged;
         }
 
         private static void OnDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -33,8 +47,7 @@ namespace Typedown.XamlUI
         private void OnContentSizeChanged(object sender, Windows.UI.Xaml.SizeChangedEventArgs e)
         {
             _contentPresenter.Clip ??= new();
-            _contentPresenter.Clip.Rect = new(new(0, 0), e.NewSize);
+            _contentPresenter.Clip.Rect = new(0, 0, _contentPresenter.ActualWidth, _contentPresenter.ActualHeight);
         }
-
     }
 }

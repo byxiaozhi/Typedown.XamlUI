@@ -88,29 +88,43 @@ namespace Typedown.XamlUI
         {
             if (_xamlSource != null)
                 return;
+
             _rootLayout.Loaded += OnLoaded;
             _rootLayout.Unloaded += OnUnloaded;
             InitializeRootLayoutBinding();
+
             _xamlSource = new() { Content = _rootLayout };
             _xamlSource.TakeFocusRequested += OnXamlSourceTakeFocusRequested;
+
             _uiSettings.ColorValuesChanged += OnColorValuesChanged;
+            if (XamlApplication.Current is not null)
+                XamlApplication.Current.RequestedThemeChanged += OnApplicationRequestedThemeChanged;
+
             var xamlSourceNative = (_xamlSource as IDesktopWindowXamlSourceNative);
             xamlSourceNative.AttachToWindow(Handle);
             XamlSourceHandle = xamlSourceNative.WindowHandle;
             CoreWindowHelper.DetachCoreWindow();
+
         }
 
         private void DisposeXamlSource()
         {
             if (_xamlSource == null)
                 return;
+
             _xamlSource.Dispose();
             _xamlSource = null;
             XamlSourceHandle = IntPtr.Zero;
+
             _uiSettings.ColorValuesChanged -= OnColorValuesChanged;
+            if (XamlApplication.Current is not null)
+                XamlApplication.Current.RequestedThemeChanged -= OnApplicationRequestedThemeChanged;
+
             _rootLayout.Loaded -= OnLoaded;
             _rootLayout.Unloaded -= OnUnloaded;
             ClearRootLayoutBinding();
+
+            RemoveCaptionControlGroup();
         }
 
         private static Thickness GetFrameBorderThickness(uint dpi)
@@ -281,17 +295,27 @@ namespace Typedown.XamlUI
             });
         }
 
+        private void AddCaptionControlGroup()
+        {
+            if (!_rootLayout.Children.OfType<CaptionControlGroup>().Any())
+                _rootLayout.Children.Add(CaptionControlGroup.CreateForXamlWindow(this));
+        }
+
+        private void RemoveCaptionControlGroup()
+        {
+            foreach (var control in _rootLayout.Children.OfType<CaptionControlGroup>())
+                _rootLayout.Children.Remove(control);
+        }
+
         private unsafe void UpdateFrame()
         {
             if (!Frame)
             {
-                if (!_rootLayout.Children.OfType<CaptionControlGroup>().Any())
-                    _rootLayout.Children.Add(CaptionControlGroup.CreateForXamlWindow(this));
+                AddCaptionControlGroup();
             }
             else
             {
-                foreach (var control in _rootLayout.Children.OfType<CaptionControlGroup>())
-                    _rootLayout.Children.Remove(control);
+                RemoveCaptionControlGroup();
             }
             if (!_isWin11OrHigher)
             {
@@ -308,15 +332,11 @@ namespace Typedown.XamlUI
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            if (XamlApplication.Current is not null)
-                XamlApplication.Current.RequestedThemeChanged += OnApplicationRequestedThemeChanged;
             Loaded?.Invoke(this, EventArgs.Empty);
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
-            if (XamlApplication.Current is not null)
-                XamlApplication.Current.RequestedThemeChanged -= OnApplicationRequestedThemeChanged;
             Unloaded?.Invoke(this, EventArgs.Empty);
         }
 
