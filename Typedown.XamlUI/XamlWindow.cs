@@ -319,14 +319,14 @@ namespace Typedown.XamlUI
 
         private void OnClosed(object sender, ClosedEventArgs e)
         {
-            _xamlSource.Dispose();
+            _xamlSource?.Dispose();
             _xamlSource = null;
             XamlSourceHandle = IntPtr.Zero;
         }
 
         public override void Dispose()
         {
-            _xamlSource.Dispose();
+            _xamlSource?.Dispose();
             _xamlSource = null;
             XamlSourceHandle = IntPtr.Zero;
             _isDisposed = true;
