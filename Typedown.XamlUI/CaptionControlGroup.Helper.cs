@@ -128,7 +128,7 @@ namespace Typedown.XamlUI
                         if (VisualTreeHelper.GetParent(window.XamlRoot?.Content) is not FrameworkElement border)
                             break;
 
-                        var ptScreen = new System.Drawing.Point((int)lParam & 0xffff, (int)lParam >> 16);
+                        var ptScreen = new System.Drawing.Point((short)(lParam & 0xffff), (short)((lParam >> 16) & 0xffff));
                         PInvoke.ScreenToClient(new(window.XamlSourceHandle), &ptScreen);
                         var pointer = new Windows.Foundation.Point(ptScreen.X / window.ScalingFactor, ptScreen.Y / window.ScalingFactor);
 

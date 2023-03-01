@@ -228,7 +228,7 @@ namespace Typedown.XamlUI
                 case PInvoke.WM_NCRBUTTONUP:
                     if (wParam == PInvoke.HTCAPTION)
                     {
-                        OpenSystemMenu(new(lParam & 0xffff, lParam >> 16));
+                        OpenSystemMenu(new((short)(lParam & 0xffff), (short)(lParam >> 16) & 0xffff));
                     }
                     break;
                 case PInvoke.WM_NCHITTEST:
@@ -238,7 +238,7 @@ namespace Typedown.XamlUI
                         {
                             return dwmResult;
                         }
-                        if (HitTest(new((int)(lParam & 0xffff), (int)(lParam >> 16)), out var hitTest))
+                        if (HitTest(new((short)(lParam & 0xffff), (short)(lParam >> 16) & 0xffff), out var hitTest))
                         {
                             return (nint)hitTest;
                         }
