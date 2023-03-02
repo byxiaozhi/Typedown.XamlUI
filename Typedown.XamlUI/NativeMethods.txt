@@ -27,6 +27,7 @@ GetWindow
 GetWindowLong
 GetWindowRect
 HCBT_CREATEWND
+HOVER_DEFAULT
 HT*
 HT*
 IDC_ARROW
@@ -66,6 +67,7 @@ SetWindowPos
 SetWindowText
 SetWindowsHookEx
 ShowWindow
+TrackMouseEvent
 TrackPopupMenu
 TranslateMessage
 UnhookWindowsHookEx
@@ -83,6 +85,7 @@ WM_NCLBUTTONDBLCLK
 WM_NCLBUTTONDOWN
 WM_NCLBUTTONUP
 WM_NCMOUSELEAVE
+WM_NCMOUSEMOVE
 WM_NCRBUTTONDBLCLK
 WM_NCRBUTTONDOWN
 WM_NCRBUTTONUP

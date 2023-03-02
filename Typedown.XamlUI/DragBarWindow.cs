@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.UI.Input.KeyboardAndMouse;
 using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace Typedown.XamlUI
@@ -42,7 +44,9 @@ namespace Typedown.XamlUI
             PInvoke.SetWindowPos(new(Handle), HWND.Null, 0, 0, 0, 0, 0);
         }
 
-        protected override nint WndProc(nint hWnd, uint msg, nuint wParam, nint lParam)
+        private bool _trackingMouse = false;
+
+        protected unsafe override nint WndProc(nint hWnd, uint msg, nuint wParam, nint lParam)
         {
             switch (msg)
             {
@@ -54,7 +58,21 @@ namespace Typedown.XamlUI
                 case PInvoke.WM_NCRBUTTONUP:
                 case PInvoke.WM_NCRBUTTONDBLCLK:
                 case PInvoke.WM_NCMOUSELEAVE:
+                    if (msg == PInvoke.WM_NCMOUSELEAVE)
+                        _trackingMouse = false;
                     return _window.SendMessage(msg, wParam, lParam);
+                case PInvoke.WM_NCMOUSEMOVE:
+                    if (!_trackingMouse && (wParam == PInvoke.HTMINBUTTON || wParam == PInvoke.HTMAXBUTTON || wParam == PInvoke.HTCLOSE))
+                    {
+                        TRACKMOUSEEVENT ev = new();
+                        ev.cbSize = (uint)Marshal.SizeOf(ev);
+                        ev.dwFlags = TRACKMOUSEEVENT_FLAGS.TME_LEAVE | TRACKMOUSEEVENT_FLAGS.TME_NONCLIENT;
+                        ev.hwndTrack = new(hWnd);
+                        ev.dwHoverTime = PInvoke.HOVER_DEFAULT;
+                        PInvoke.TrackMouseEvent(&ev);
+                        _trackingMouse = true;
+                    }
+                    break;
                 default:
                     break;
             }
