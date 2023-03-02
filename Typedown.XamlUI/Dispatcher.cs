@@ -85,19 +85,12 @@ namespace Typedown.XamlUI
             }
         }
 
-        internal async void PostTask(Action action)
+        internal void PostTask(Action action)
         {
-            if (GetWpfCurrentApplication() is object app)
+            _taskQueue.Add(action);
+            if (_threadId != 0)
             {
-                await WpfInvokeAsync(app, action);
-            }
-            else
-            {
-                _taskQueue.Add(action);
-                if (_threadId != 0)
-                {
-                    PInvoke.PostThreadMessage(_threadId, 0, 0, 0);
-                }
+                PInvoke.PostThreadMessage(_threadId, 0, 0, 0);
             }
         }
 
@@ -152,22 +145,6 @@ namespace Typedown.XamlUI
                 return source.Task;
             }
             return Task.CompletedTask;
-        }
-
-        private object GetWpfCurrentApplication()
-        {
-            var type = Type.GetType("System.Windows.Application, PresentationFramework");
-            var current = type?.GetProperty("Current")?.GetValue(null);
-            return current;
-        }
-
-        private Task WpfInvokeAsync(object app, Action action)
-        {
-            var dispatcher = app?.GetType().GetProperty("Dispatcher")?.GetValue(app);
-            var invokeAsync = dispatcher?.GetType().GetMethod("InvokeAsync", new Type[] { typeof(Action) });
-            var operation = invokeAsync?.Invoke(dispatcher, new object[] { action });
-            var task = operation?.GetType().GetProperty("Task")?.GetValue(operation) as Task;
-            return task;
         }
     }
 }
