@@ -44,9 +44,19 @@ namespace Typedown.XamlUI
 
         protected override nint WndProc(nint hWnd, uint msg, nuint wParam, nint lParam)
         {
-            if (msg == PInvoke.WM_NCHITTEST)
+            switch (msg)
             {
-                return PInvoke.HTTRANSPARENT;
+                case PInvoke.WM_NCHITTEST:
+                case PInvoke.WM_NCLBUTTONDOWN:
+                case PInvoke.WM_NCLBUTTONUP:
+                case PInvoke.WM_NCLBUTTONDBLCLK:
+                case PInvoke.WM_NCRBUTTONDOWN:
+                case PInvoke.WM_NCRBUTTONUP:
+                case PInvoke.WM_NCRBUTTONDBLCLK:
+                case PInvoke.WM_NCMOUSELEAVE:
+                    return _window.SendMessage(msg, wParam, lParam);
+                default:
+                    break;
             }
             return base.WndProc(hWnd, msg, wParam, lParam);
         }
