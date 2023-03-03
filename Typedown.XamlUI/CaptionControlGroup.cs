@@ -4,7 +4,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace Typedown.XamlUI
 {
-    internal partial class CaptionControlGroup : Control
+    public partial class CaptionControlGroup : Control
     {
         public static DependencyProperty IsMaximizedProperty { get; } = DependencyProperty.Register(nameof(IsMaximized), typeof(bool), typeof(CaptionControlGroup), null);
 
@@ -26,7 +26,7 @@ namespace Typedown.XamlUI
 
         public event EventHandler CloseClick;
 
-        public CaptionControlGroup()
+        internal CaptionControlGroup()
         {
             IsTabStop = false;
         }

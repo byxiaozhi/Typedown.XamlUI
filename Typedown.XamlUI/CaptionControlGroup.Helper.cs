@@ -5,9 +5,9 @@ using Windows.Win32;
 
 namespace Typedown.XamlUI
 {
-    internal partial class CaptionControlGroup
+    public partial class CaptionControlGroup
     {
-        public static unsafe CaptionControlGroup CreateForXamlWindow(XamlWindow window)
+        internal static unsafe CaptionControlGroup CreateForXamlWindow(XamlWindow window)
         {
             var control = new CaptionControlGroup()
             {
