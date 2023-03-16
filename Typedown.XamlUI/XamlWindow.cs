@@ -273,7 +273,8 @@ namespace Typedown.XamlUI
         private unsafe void SetDarkMode(bool isDarkMode)
         {
             uint darkModeValue = (!Frame && !_isWin11OrHigher) || isDarkMode ? 1u : 0;
-            PInvoke.DwmSetWindowAttribute(new(Handle), DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, &darkModeValue, (uint)Marshal.SizeOf(typeof(uint)));
+            var attr = Environment.OSVersion.Version.Build >= 18985 ? DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE : (DWMWINDOWATTRIBUTE)19;
+            PInvoke.DwmSetWindowAttribute(new(Handle), attr, &darkModeValue, (uint)Marshal.SizeOf(typeof(uint)));
             var actualTheme = isDarkMode ? ElementTheme.Dark : ElementTheme.Light;
             if (ActualTheme != actualTheme)
             {
