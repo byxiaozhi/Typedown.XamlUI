@@ -90,8 +90,7 @@ namespace Typedown.XamlUI
             {
                 case PInvoke.WM_DPICHANGED:
                     {
-                        static ushort HighWord(uint value) => (ushort)((value >> 16) & 0xFFFF);
-                        DisplayDpi = HighWord((uint)wParam);
+                        DisplayDpi = BitConverter.ToUInt16(BitConverter.GetBytes(wParam), 2);
                         PInvoke.EnumChildWindows(new(_hWnd), (child, _) =>
                         {
                             if (_instances.TryGetValue(child, out var instance))

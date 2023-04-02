@@ -1,4 +1,5 @@
-﻿using Windows.UI.Xaml;
+﻿using System;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.Win32;
@@ -127,8 +128,8 @@ namespace Typedown.XamlUI
                     case PInvoke.WM_NCHITTEST:
                         if (VisualTreeHelper.GetParent(window.XamlRoot?.Content) is not FrameworkElement border)
                             break;
-
-                        var ptScreen = new System.Drawing.Point((short)(lParam & 0xffff), (short)((lParam >> 16) & 0xffff));
+                        var ptScreenBytes = BitConverter.GetBytes(lParam);
+                        var ptScreen = new System.Drawing.Point(BitConverter.ToInt16(ptScreenBytes, 0), BitConverter.ToInt16(ptScreenBytes, 2));
                         PInvoke.ScreenToClient(new(window.XamlSourceHandle), &ptScreen);
                         var pointer = new Windows.Foundation.Point(ptScreen.X / window.ScalingFactor, ptScreen.Y / window.ScalingFactor);
 

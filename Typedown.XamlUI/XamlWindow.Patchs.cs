@@ -1,4 +1,5 @@
-﻿using Windows.UI.Xaml.Controls;
+﻿using System;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 using Windows.Win32;
@@ -15,8 +16,9 @@ namespace Typedown.XamlUI
                     UpdatePopupLocation();
                     break;
                 case PInvoke.WM_SIZE:
-                    var newWidth = (lParam & 0xffff) / ScalingFactor;
-                    var newHeight = (lParam >> 16) / ScalingFactor;
+                    var sizeBytes = BitConverter.GetBytes(lParam);
+                    var newWidth = BitConverter.ToUInt16(sizeBytes, 0) / ScalingFactor;
+                    var newHeight = BitConverter.ToUInt16(sizeBytes, 2) / ScalingFactor;
                     UpdateContentDialogSize(newWidth, newHeight);
                     break;
                 case PInvoke.WM_NCLBUTTONDOWN:
