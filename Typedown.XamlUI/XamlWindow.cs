@@ -192,6 +192,14 @@ namespace Typedown.XamlUI
             return false;
         }
 
+        private void UpdateXamlSourceSize(int width, int height)
+        {
+            var thickness = GetFrameBorderThickness(DisplayDpi);
+            var topBorderThickness = Frame ? 0 : (int)Math.Floor(GetIsMaximized() ? thickness.Top : ScalingFactor);
+            var flags = SET_WINDOW_POS_FLAGS.SWP_NOZORDER | SET_WINDOW_POS_FLAGS.SWP_SHOWWINDOW;
+            PInvoke.SetWindowPos(new(XamlSourceHandle), HWND.Null, 0, topBorderThickness, width, height - topBorderThickness, flags);
+        }
+
         protected override unsafe nint WndProc(nint hWnd, uint msg, nuint wParam, nint lParam)
         {
             UpdateDependencyProperty(msg, wParam, lParam);
@@ -200,12 +208,8 @@ namespace Typedown.XamlUI
             {
                 case PInvoke.WM_SIZE:
                     {
-                        var newWidth = lParam & 0xffff;
-                        var newHeight = lParam >> 16;
-                        var thickness = GetFrameBorderThickness(DisplayDpi);
-                        var topBorderThickness = Frame ? 0 : (int)Math.Floor(GetIsMaximized() ? thickness.Top : ScalingFactor);
-                        var flags = SET_WINDOW_POS_FLAGS.SWP_NOZORDER | SET_WINDOW_POS_FLAGS.SWP_SHOWWINDOW;
-                        PInvoke.SetWindowPos(new(XamlSourceHandle), HWND.Null, 0, topBorderThickness, (int)newWidth, (int)newHeight - topBorderThickness, flags);
+                        var sizeBytes = BitConverter.GetBytes(lParam);
+                        UpdateXamlSourceSize(BitConverter.ToInt16(sizeBytes, 0), BitConverter.ToInt16(sizeBytes, 2));
                         break;
                     }
                 case PInvoke.WM_DPICHANGED:
