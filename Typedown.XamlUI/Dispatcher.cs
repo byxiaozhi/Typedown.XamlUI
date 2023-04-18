@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Hosting;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
@@ -15,41 +17,78 @@ namespace Typedown.XamlUI
             get
             {
                 var threadId = PInvoke.GetCurrentThreadId();
-                if (_dispatchers.TryGetValue(threadId, out var value))
+                if (_threadDispatchers.TryGetValue(threadId, out var value))
                     return value;
                 return null;
             }
         }
 
-        private static readonly ConcurrentDictionary<uint, Dispatcher> _dispatchers = new();
+        private static readonly ConcurrentDictionary<uint, Dispatcher> _threadDispatchers = new();
 
-        private readonly BlockingCollection<Action> _taskQueue = new();
+        private static readonly ConcurrentDictionary<HWND, Dispatcher> _hwndDispatchers = new();
+
+        private static readonly WNDPROC _wndProc = new(StaticWndProc);
+
+        private readonly ConcurrentDictionary<uint, Action> _tasks = new();
 
         private readonly SynchronizationContext _synchronizationContext;
 
+        private DesktopWindowXamlSource _xamlSource;
+
         private uint _threadId = 0;
 
+        private HWND _hWnd = HWND.Null;
+
         private Exception _exception;
+
+        private const uint WM_TASK = PInvoke.WM_USER + 1;
+
+        private uint curTaskId = 0;
+
+        static unsafe Dispatcher()
+        {
+            fixed (char* pClassName = typeof(Dispatcher).FullName)
+            {
+                var wndClass = new WNDCLASSEXW();
+                wndClass.cbSize = (uint)Marshal.SizeOf(wndClass);
+                wndClass.lpfnWndProc = _wndProc;
+                wndClass.hInstance = PInvoke.GetModuleHandle((char*)0);
+                wndClass.lpszClassName = pClassName;
+                PInvoke.RegisterClassEx(wndClass);
+            }
+        }
 
         internal Dispatcher()
         {
             _synchronizationContext = new DispatcherSynchronizationContext(this);
         }
 
-        public unsafe void Start()
+        private unsafe void CreateMessageWindow()
+        {
+            if (!_hWnd.IsNull) return;
+            _hWnd = PInvoke.CreateWindowEx(0, typeof(Dispatcher).FullName, typeof(Dispatcher).FullName, 0, 0, 0, 0, 0, HWND.Null, null, null, null);
+            _hwndDispatchers.TryAdd(_hWnd, this);
+            _xamlSource = new();
+            var xamlSourceNative = (_xamlSource as IDesktopWindowXamlSourceNative);
+            xamlSourceNative.AttachToWindow(_hWnd);
+            PostTaskProcessMessage(null);
+        }
+
+        public void Start()
         {
             var threadId = PInvoke.GetCurrentThreadId();
-            if (!_dispatchers.TryAdd(threadId, this))
+            if (!_threadDispatchers.TryAdd(threadId, this))
                 throw new InvalidOperationException("Dispatcher is already running");
             _threadId = threadId;
             try
             {
-                PInvoke.PostThreadMessage(_threadId, 0, 0, 0);
+                CreateMessageWindow();
                 MessageLoop();
             }
             finally
             {
-                _dispatchers.TryRemove(_threadId, out _);
+                if (!_hWnd.IsNull) PInvoke.DestroyWindow(_hWnd);
+                _threadDispatchers.TryRemove(_threadId, out _);
                 _threadId = 0;
                 if (_exception != null)
                     throw _exception;
@@ -59,9 +98,19 @@ namespace Typedown.XamlUI
         private unsafe void MessageLoop()
         {
             MSG msg;
-            while (PInvoke.GetMessage(&msg, HWND.Null, 0, 0))
+            while (!_hWnd.IsNull && PInvoke.GetMessage(&msg, HWND.Null, 0, 0))
             {
-                MessageProcess(&msg);
+                PInvoke.TranslateMessage(&msg);
+                PInvoke.DispatchMessage(&msg);
+            }
+        }
+
+        private void TaskProcess(uint taskId)
+        {
+            if (_tasks.TryRemove(taskId, out var action))
+            {
+                SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
+                action();
             }
         }
 
@@ -70,28 +119,57 @@ namespace Typedown.XamlUI
             MSG msg;
             while (PInvoke.PeekMessage(&msg, HWND.Null, 0, 0, PEEK_MESSAGE_REMOVE_TYPE.PM_REMOVE))
             {
-                MessageProcess(&msg);
+                PInvoke.TranslateMessage(&msg);
+                PInvoke.DispatchMessage(&msg);
+                foreach (var taskId in _tasks.Keys)
+                    TaskProcess(taskId);
             }
         }
 
-        private unsafe void MessageProcess(MSG* msg)
+        private static LRESULT StaticWndProc(HWND hWnd, uint msg, WPARAM wParam, LPARAM lParam)
         {
-            PInvoke.TranslateMessage(msg);
-            PInvoke.DispatchMessage(msg);
-            while (_taskQueue.TryTake(out var action))
+            if (_hwndDispatchers.TryGetValue(hWnd, out var instance))
             {
-                SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
-                action();
+                var result = instance.WndProc(hWnd, msg, wParam, lParam);
+                if (msg == PInvoke.WM_DESTROY)
+                {
+                    _hwndDispatchers.TryRemove(hWnd, out var _);
+                    instance._hWnd = HWND.Null;
+                }
+                return result;
             }
+            return PInvoke.DefWindowProc(hWnd, msg, wParam, lParam);
+        }
+
+        private LRESULT WndProc(HWND hWnd, uint msg, nuint wParam, nint lParam)
+        {
+            if (msg == WM_TASK)
+            {
+                if (lParam != 0)
+                {
+                    foreach (var taskId in _tasks.Keys)
+                        TaskProcess(taskId);
+                }
+                else
+                {
+                    TaskProcess((uint)wParam);
+                }
+            }
+            return PInvoke.DefWindowProc(hWnd, msg, wParam, lParam);
+        }
+
+        private bool PostTaskProcessMessage(uint? taskId)
+        {
+            while (!_hWnd.IsNull && !PInvoke.PostMessage(_hWnd, WM_TASK, taskId ?? 0, taskId.HasValue ? 0 : 1))
+                Thread.Sleep(10);
+            return !_hWnd.IsNull;
         }
 
         internal void PostTask(Action action)
         {
-            _taskQueue.Add(action);
-            if (_threadId != 0)
-            {
-                PInvoke.PostThreadMessage(_threadId, 0, 0, 0);
-            }
+            var taskId = curTaskId++;
+            _tasks.TryAdd(taskId, action);
+            PostTaskProcessMessage(taskId);
         }
 
         public Task<TResult> RunAsync<TResult>(Func<TResult> action)
@@ -132,14 +210,15 @@ namespace Typedown.XamlUI
 
         public Task ShutdownAsync(Exception exception = null)
         {
-            if (_threadId != 0)
+            if (!_hWnd.IsNull)
             {
                 _exception = exception;
                 var source = new TaskCompletionSource<bool>();
                 PostTask(() =>
                 {
                     ClearTaskQueue();
-                    PInvoke.PostThreadMessage(_threadId, PInvoke.WM_QUIT, 0, 0);
+                    if (!_hWnd.IsNull)
+                        PInvoke.DestroyWindow(_hWnd);
                     source.SetResult(true);
                 });
                 return source.Task;

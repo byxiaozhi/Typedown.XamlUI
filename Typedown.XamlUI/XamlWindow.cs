@@ -103,8 +103,6 @@ namespace Typedown.XamlUI
             var xamlSourceNative = (_xamlSource as IDesktopWindowXamlSourceNative);
             xamlSourceNative.AttachToWindow(Handle);
             XamlSourceHandle = xamlSourceNative.WindowHandle;
-            CoreWindowHelper.DetachCoreWindow();
-
         }
 
         private void DisposeXamlSource()

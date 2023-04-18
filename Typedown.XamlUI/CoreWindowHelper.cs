@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
@@ -9,15 +8,6 @@ namespace Typedown.XamlUI
     internal class CoreWindowHelper
     {
         public static HWND CoreWindowHandle { get; private set; }
-
-        public static void DetachCoreWindow()
-        {
-            if (CoreWindowHandle != IntPtr.Zero)
-            {
-                PInvoke.SetParent(CoreWindowHandle, HWND.Null);
-                PInvoke.ShowWindow(CoreWindowHandle, SHOW_WINDOW_CMD.SW_HIDE);
-            }
-        }
 
         public static void SetCoreWindow(HWND handle)
         {
@@ -31,7 +21,7 @@ namespace Typedown.XamlUI
 
         public static unsafe bool IsCoreWindow(HWND handle)
         {
-            var classname = new char[255];
+            var classname = new char[32];
             fixed (char* lpClassName = classname)
             {
                 PInvoke.GetClassName(handle, lpClassName, classname.Length);
