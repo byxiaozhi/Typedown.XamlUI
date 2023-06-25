@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -116,71 +115,6 @@ namespace Typedown.XamlUI
             return new XmlnsDefinition[0];
         }
 
-        //private static void TryInitializeXamlMetadataProvider()
-        //{
-        //    _typeNameProviders.Clear();
-        //    _typeProviders.Clear();
-        //    _otherProviders.Clear();
-        //    var types = GetXamlMetadataProviderTypes();
-        //    Parallel.ForEach(types, providerType =>
-        //    {
-        //        try
-        //        {
-        //            var provider = Activator.CreateInstance(providerType) as IXamlMetadataProvider;
-        //            var (typeNameTable, typeTable) = TryGetTypeTable(provider);
-
-        //            if (typeNameTable is null || typeTable is null)
-        //            {
-        //                lock (_otherProviders)
-        //                {
-        //                    _otherProviders.Add(provider);
-        //                }
-        //            }
-
-        //            if (typeNameTable != null)
-        //            {
-        //                lock (_typeNameProviders)
-        //                {
-        //                    foreach (var typeName in typeNameTable)
-        //                    {
-        //                        if (_typeNameProviders.TryGetValue(typeName, out var list))
-        //                        {
-        //                            list.Add(provider);
-        //                        }
-        //                        else
-        //                        {
-        //                            _typeNameProviders.Add(typeName, new() { provider });
-        //                        }
-        //                    }
-        //                }
-        //            }
-
-        //            if (typeTable != null)
-        //            {
-        //                lock (_typeProviders)
-        //                {
-        //                    foreach (var type in typeTable)
-        //                    {
-        //                        if (_typeProviders.TryGetValue(type, out var list))
-        //                        {
-        //                            list.Add(provider);
-        //                        }
-        //                        else
-        //                        {
-        //                            _typeProviders.Add(type, new() { provider });
-        //                        }
-        //                    }
-        //                }
-        //            }
-
-        //        }
-        //        catch
-        //        {
-        //            // Ignore
-        //        }
-        //    });
-        //}
-
         private bool TryInitializeXamlMetadataProvider()
         {
             var searchedAssemblies = new HashSet<string>();
@@ -265,71 +199,6 @@ namespace Typedown.XamlUI
             });
             return true;
         }
-
-        //public static IEnumerable<Assembly> GetAllAssemblies()
-        //{
-        //    var entry = Assembly.GetEntryAssembly();
-        //    var entryDirectory = Path.GetDirectoryName(entry.Location);
-        //    var visit = new ConcurrentDictionary<string, object>();
-        //    var stack = new List<Assembly>() { entry };
-        //    visit.TryAdd(entry.FullName, null);
-        //    while (stack.Any())
-        //    {
-        //        foreach (var asm in stack)
-        //        {
-        //            yield return asm;
-        //        }
-        //        stack = stack.AsParallel()
-        //            .SelectMany(x => x.GetReferencedAssemblies())
-        //            .Distinct()
-        //            .Select(x =>
-        //            {
-        //                try
-        //                {
-        //                    if (!visit.TryAdd(x.FullName, null))
-        //                        return null;
-        //                    var assembly = Assembly.Load(x);
-        //                    if (!assembly.Location.StartsWith(entryDirectory))
-        //                        return null;
-        //                    return assembly;
-        //                }
-        //                catch
-        //                {
-        //                    return null;
-        //                }
-        //            }).Where(x => x is not null).ToList();
-        //    }
-        //}
-
-        //public static IEnumerable<Assembly> GetAllAssemblies()
-        //{
-        //    var folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        //    var extensions = new HashSet<string> { ".exe", ".dll", ".winmd" };
-        //    var candidateFiles = Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories)
-        //        .Where(x => extensions.Contains(Path.GetExtension(x).ToLower()))
-        //        .ToHashSet();
-        //    var assemblies = new HashSet<Assembly>();
-        //    Parallel.ForEach(candidateFiles, file =>
-        //    {
-        //        try
-        //        {
-        //            assemblies.Add(Assembly.LoadFrom(file));
-        //        }
-        //        catch
-        //        {
-        //            // Ignore
-        //        }
-        //    });
-        //    return assemblies;
-        //}
-
-        //public static IEnumerable<Type> GetXamlMetadataProviderTypes()
-        //{
-        //    var assemblies = GetAllAssemblies().ToList();
-        //    return assemblies.AsParallel()
-        //        .SelectMany(x => x.DefinedTypes)
-        //        .Where(IXamlMetadataProviderFilter).ToList();
-        //}
 
         public static bool IXamlMetadataProviderFilter(Type type)
         {
