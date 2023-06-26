@@ -97,8 +97,7 @@ namespace Typedown.XamlUI
             {
                 providers ??= new List<IXamlMetadataProvider>();
                 var presetProviders = new List<IXamlMetadataProvider> {
-                    new XamlControlsXamlMetaDataProvider(),
-                    // new ReflectionXamlMetadataProvider()
+                    new XamlControlsXamlMetaDataProvider()
                 };
                 _providers = providers.Union(presetProviders).ToList();
 
