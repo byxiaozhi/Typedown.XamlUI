@@ -9,8 +9,8 @@
 		<Version>1.0.1</Version>
 		<Platforms>AnyCPU</Platforms>
 		<Authors>ZZF</Authors>
-		<RepositoryUrl>https://github.com/zzfsoft/Typedown.XamlUI</RepositoryUrl>
-		<PackageDescription>A minimal library for building WinUI style application</PackageDescription>
+		<RepositoryUrl>https://github.com/byxiaozhi/Typedown.XamlUI</RepositoryUrl>
+		<PackageDescription>A minimal library for building WinUI style win32 application</PackageDescription>
 	</PropertyGroup>
 
 	<ItemGroup>
