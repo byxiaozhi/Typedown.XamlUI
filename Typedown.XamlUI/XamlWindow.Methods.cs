@@ -87,7 +87,7 @@ namespace Typedown.XamlUI
             PInvoke.EnableMenuItem(hMenu, PInvoke.SC_SIZE, toEnable(WindowState == WindowState.Normal && ResizeMode == WindowResizeMode.CanResize));
             PInvoke.EnableMenuItem(hMenu, PInvoke.SC_MINIMIZE, toEnable(ResizeMode == WindowResizeMode.CanResize || ResizeMode == WindowResizeMode.CanMinimize));
             PInvoke.SetMenuDefaultItem(hMenu, WindowState == WindowState.Maximized ? 0u : 4u, 1);
-            var retvalue = PInvoke.TrackPopupMenu(hMenu, TRACK_POPUP_MENU_FLAGS.TPM_RETURNCMD, (int)screenPoint.Value.X, (int)screenPoint.Value.Y, 0, new(Handle), (RECT*)0);
+            var retvalue = PInvoke.TrackPopupMenu(hMenu, TRACK_POPUP_MENU_FLAGS.TPM_RETURNCMD, (int)screenPoint.Value.X, (int)screenPoint.Value.Y, 0, new(Handle), null);
             if (retvalue) PInvoke.PostMessage(new(Handle), PInvoke.WM_SYSCOMMAND, (nuint)retvalue.Value, 0);
         }
 

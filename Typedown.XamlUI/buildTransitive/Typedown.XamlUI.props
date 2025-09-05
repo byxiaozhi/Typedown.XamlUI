@@ -2,9 +2,9 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<PropertyGroup>
-		<TargetPlatformVersion Condition="$(TargetPlatformVersion)==''">10.0.18362.0</TargetPlatformVersion>
+		<TargetPlatformVersion Condition="$(TargetPlatformVersion)==''">10.0.26100.0</TargetPlatformVersion>
 		<TargetPlatformMinVersion Condition="$(TargetPlatformMinVersion)==''">10.0.18362.0</TargetPlatformMinVersion>
-		<AssetTargetFallback Condition="$(AssetTargetFallback)==''">uap10.0.18362</AssetTargetFallback>
+		<AssetTargetFallback Condition="$(AssetTargetFallback)==''">uap10.0.26100</AssetTargetFallback>
 		<NoWarn>NU1701;CS8305;$(NoWarn)</NoWarn>
 		<DisableEmbeddedXbf Condition="$(DisableEmbeddedXbf)==''">false</DisableEmbeddedXbf>
 	</PropertyGroup>
