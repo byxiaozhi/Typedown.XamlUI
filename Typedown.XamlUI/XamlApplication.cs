@@ -105,7 +105,8 @@ namespace Typedown.XamlUI
                     Windows.UI.Xaml.Hosting.WindowsXamlManager.InitializeForCurrentThread();
                 ((Windows.UI.Xaml.Window.Current as object) as IWindowPrivate).TransparentBackground = true;
 
-                Resources.MergedDictionaries.Add(new XamlControlsResources());
+                var res = new XamlControlsResources();
+                Resources.MergedDictionaries.Add(res);
                 Resources.MergedDictionaries.Add(new CommonResources());
             }
 

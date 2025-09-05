@@ -82,12 +82,15 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
-		<PackageReference Include="Win2D.uwp" Version="1.26.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<CsWinRTInputs Include="lib\Microsoft.UI.Xaml.winmd" />
-		<CsWinRTInputs Include="ref\uap10.0.18362\Windows.UI.Xaml.Hosting.HostingContract.winmd" />
+		<Reference Include="Microsoft.UI.Xaml">
+			<HintPath>lib\Microsoft.UI.Xaml.winmd</HintPath>
+		</Reference>
+		<Reference Include="Windows.UI.Xaml.Hosting.HostingContract">
+			<HintPath>ref\Windows.UI.Xaml.Hosting.HostingContract.winmd</HintPath>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -119,12 +122,6 @@
 			<Pack>true</Pack>
 			<PackagePath>tools</PackagePath>
 		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Remove="Resources\CaptionControl_themeresources.xaml" />
-	  <None Remove="Resources\ComboBox_themeresources.xaml" />
-	  <None Remove="Resources\ContentDialog_themeresources.xaml" />
 	</ItemGroup>
 
 </Project>
